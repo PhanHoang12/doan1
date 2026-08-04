@@ -35,15 +35,27 @@
 </head><!--/head-->
 
 <body>
-    {% include 'header.html' %}
+    {% include "header.html" %}
 
-    {% block content %}
+    <section>
+        <div class="container">
+            <div class="row">
 
-    <!-- Nội dung trang html tạo ra ở các trang khác muốn hiển thị -->
-    {% endblock %}
+                <!-- Menu trái -->
+                <div class="col-sm-3">
+                    {% include "menu-left.html" %}
+                </div>
+
+                <!-- Nội dung từng trang -->
+                <div class="col-sm-9">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+
+            </div>
+        </div>
+    </section>
     {% include 'footer.html' %}
-
-
 
     <script src="{% static 'global/js/jquery.js' %}"></script>
     <script src="{% static 'global/js/bootstrap.min.js' %}"></script>
