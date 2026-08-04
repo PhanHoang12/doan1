@@ -25,8 +25,11 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            print(request.user)
             return redirect("/")
     else:
         form = AuthenticationForm()
     return render(request, 'user/login.html', {'form': form})
-
+def custom_logout(request):
+    logout(request)
+    return redirect('login_view')
