@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+{{ blog.title }}
+{% endblock %}
+
+
+{% block content %}
+
+<section>
+    <div class="container">
+        <div class="row">
+            <!-- sidebar -->
+            <div class="col-sm-3">
+                <div class="left-sidebar">
+                    <h2>Category</h2>
+                    <div class="panel-group category-products">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="#">
+                                        Sportswear
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="#">
+                                        Mens
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="#">
+                                        Womens
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- blog detail -->
+            <div class="col-sm-9">
+                <div class="blog-post-area">
+                    <h2 class="title text-center">
+                        Latest From our Blog
+                    </h2>
+                    <div class="single-blog-post">
+                        <h3>
+                            {{ blog.title }}
+                        </h3>
+                        <div class="post-meta">
+                            <ul>
+                                <li>
+                                    <i class="fa fa-user"></i>
+                                    {{ blog.author.username }}
+                                </li>
+                                <li>
+                                    <i class="fa fa-clock-o"></i>
+                                    {{ blog.created_at|date:"H:i" }}
+                                </li>
+                                <li>
+                                    <i class="fa fa-calendar"></i>
+                                    {{ blog.created_at|date:"d/m/Y" }}
+                                </li>
+                            </ul>
+                        </div>
+                        {% if blog.image %}
+                        <a href="#">
+                            <img src="{{ blog.image.url }}" class="img-responsive" alt="{{ blog.title }}">
+                        </a>
+                        {% else %}
+                        <a href="#">
+                            <img src="{% static 'global/images/blog/blog-one.jpg' %}" class="img-responsive">
+                        </a>
+                        {% endif %}
+                        <br>
+                        <p>
+                            {{ blog.description }}
+                        </p>
+                        <br>
+                        <p>
+                            {{ blog.content|linebreaks }}
+                        </p>
+                        <!-- previous next -->
+                        <div class="pager-area">
+                            <ul class="pager pull-right">
+                                {% if previous_blog %}
+                                <li>
+                                    <a href="{% url 'blog_detail' previous_blog.id %}">
+                                        Previous
+                                    </a>
+                                </li>
+                                {% endif %}
+                                {% if next_blog %}
+                                <li>
+                                    <a href="{% url 'blog_detail' next_blog.id %}">
+                                        Next
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- rating -->
+                <div class="rating-area">
+                    <ul class="ratings">
+                        <li class="rate-this">
+                            Rate this item:
+                        </li>
+                        <li>
+                            <i class="fa fa-star color"></i>
+                            <i class="fa fa-star color"></i>
+                            <i class="fa fa-star color"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                        </li>
+                    </ul>
+                </div>
+                <!-- comment -->
+
+                <div class="response-area">
+                    <h2>
+                        COMMENTS
+                    </h2>
+                    <p>
+                        Chưa có bình luận.
+                    </p>
+                </div>
+                <div class="replay-box">
+                    <h2>
+                        Leave a reply
+                    </h2>
+                    <textarea rows="8" class="form-control"></textarea>
+                    <br>
+                    <button class="btn btn-primary">
+                        Post Comment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Blog{% endblock %}
+
+{% block content %}
+
+<div class="blog-post-area">
+    <h2 class="title text-center">Latest From Our Blog</h2>
+    {% for blog in page_obj %}
+    <div class="single-blog-post">
+        <h3>{{ blog.title }}</h3>
+        <div class="post-meta">
+            <ul>
+                <li>
+                    <i class="fa fa-user"></i>
+                    {{ blog.author.username }}
+                </li>
+
+                <li>
+                    <i class="fa fa-clock-o"></i>
+                    {{ blog.created_at|date:"H:i" }}
+                </li>
+
+                <li>
+                    <i class="fa fa-calendar"></i>
+                    {{ blog.created_at|date:"d/m/Y" }}
+                </li>
+            </ul>
+
+            <span>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star-half-o"></i>
+            </span>
+        </div>
+        {% if blog.image %}
+        <a href="#">
+            <img src="{{ blog.image.url }}" class="img-responsive" alt="{{ blog.title }}">
+        </a>
+        {% else %}
+        <a href="#">
+            <img src="{% static 'global/images/blog/blog-one.jpg' %}" class="img-responsive">
+        </a>
+        {% endif %}
+        <p>
+            {{ blog.description|truncatewords:40 }}
+        </p>
+        <a class="btn btn-primary" href="{% url 'blog_detail' blog.id %}">
+            Read More
+        </a>
+    </div>
+    {% empty %}
+    <div class="alert alert-info">
+        Chưa có bài viết nào.
+    </div>
+    {% endfor %}
+    <div class="pagination-area">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li>
+                <a href="?page={{ page_obj.previous_page_number }}">
+                    <i class="fa fa-angle-double-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            {% for i in page_obj.paginator.page_range %}
+            {% if page_obj.number == i %}
+            <li>
+                <a href="?page={{ i }}" class="active">
+                    {{i}}
+                </a>
+            </li>
+            {% else %}
+            <li>
+                <a href="?page={{ i }}">
+                    {{ i }}
+                </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li>
+                <a href="?page={{ page_obj.next_page_number }}">
+                    <i class="fa fa-angle-double-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+{% endblock %}
