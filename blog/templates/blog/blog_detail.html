@@ -7,7 +7,51 @@
 
 
 {% block content %}
+<style>
+    .blog-rating-area {
+        margin: 20px 0;
+    }
 
+    .blog-ratings {
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center;
+    }
+
+    .blog-rate-title {
+        margin-right: 10px;
+        font-weight: bold;
+    }
+
+    .blog-rating-star {
+        list-style: none !important;
+        display: inline-block !important;
+        margin-right: 5px !important;
+        padding: 0 !important;
+        cursor: pointer !important;
+    }
+
+    .blog-rating-star i {
+        font-size: 25px !important;
+        color: #ccc !important;
+        cursor: pointer !important;
+    }
+
+    .blog-rating-star.rating-active i {
+        color: #f39c12 !important;
+    }
+
+    .blog-rating-star:hover i {
+        color: #f39c12 !important;
+    }
+
+    .blog-rating-star input {
+        display: none;
+    }
+</style>
+</style>
 <section>
     <div class="container">
         <div class="row">
@@ -111,45 +155,100 @@
                     </div>
                 </div>
 
+                <!-- RATING -->
+                <ul class="blog-ratings">
 
+                    <li class="blog-rate-title">
+                        Rate this item:
+                    </li>
 
-                <!-- rating -->
-                <div class="rating-area">
-                    <ul class="ratings">
-                        <li class="rate-this">
-                            Rate this item:
-                        </li>
-                        <li>
-                            <i class="fa fa-star color"></i>
-                            <i class="fa fa-star color"></i>
-                            <i class="fa fa-star color"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                        </li>
-                    </ul>
-                </div>
-                <!-- comment -->
+                    {% for active in star %}
+                    <li class="blog-rating-star {% if active %}rating-active{% endif %}"
+                        data-score="{{ forloop.counter }}">
+                        <i class="fa fa-star"></i>
+                    </li>
+                    {% endfor %}
 
-                <div class="response-area">
-                    <h2>
-                        COMMENTS
-                    </h2>
-                    <p>
-                        Chưa có bình luận.
-                    </p>
-                </div>
-                <div class="replay-box">
-                    <h2>
-                        Leave a reply
-                    </h2>
-                    <textarea rows="8" class="form-control"></textarea>
-                    <br>
-                    <button class="btn btn-primary">
-                        Post Comment
-                    </button>
-                </div>
+                </ul>
+                <p>
+                    <span id="average">{{ average }}</span>
+                    (<span id="total">{{ total }}</span> lượt đánh giá)
+                </p>
+            </div>
+            <!-- comment -->
+
+            <div class="response-area">
+                <h2>
+                    COMMENTS
+                </h2>
+                <p>
+                    Chưa có bình luận.
+                </p>
+            </div>
+            <div class="replay-box">
+                <h2>
+                    Leave a reply
+                </h2>
+                <textarea rows="8" class="form-control"></textarea>
+                <br>
+                <button class="btn btn-primary">
+                    Post Comment
+                </button>
             </div>
         </div>
     </div>
+    </div>
 </section>
+<script>
+    $(document).ready(function () {
+
+        $(".blog-rating-star").click(function () {
+            var checkLogin = "{{ user.is_authenticated }}";
+            var blogId = "{{ blog.id }}";
+            var rate = $(this).data("score");
+            // Chưa đăng nhập
+            if (checkLogin != "True") {
+                alert("Vui lòng đăng nhập trước!");
+                return;
+            }
+            // Hiển thị ngay số sao user vừa chọn
+            $(".blog-rating-star").removeClass("rating-active");
+            $(this)
+                .prevAll(".blog-rating-star")
+                .addBack()
+                .addClass("rating-active");
+            // Gửi AJAX
+            $.ajax({
+                type: "POST",
+                url: "{% url 'blog_rate' %}",
+
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                data: {
+                    blog_id: blogId,
+                    rate: rate
+                },
+                success: function (data) {
+                    if (data.success) {
+                        // Giữ nguyên số sao user vừa click
+                        alert("Cảm ơn bạn đã đánh giá!");
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function (xhr) {
+
+                    if (xhr.status == 401) {
+                        alert("Vui lòng đăng nhập trước!");
+                    } else {
+                        alert("Có lỗi xảy ra!");
+                        console.log(xhr.responseText);
+                    }
+                }
+            });
+        });
+
+    });
+</script>
 {% endblock %}

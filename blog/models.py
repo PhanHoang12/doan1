@@ -10,4 +10,15 @@ class Blog(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     def __str__(self):
         return self.title
+class Rate(models.Model):
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name="rates")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        # dùng để chặn user đánh giá nhiều dòng trong 1 blog 
+        unique_together = ("blog", "user") 
+    def __str__(self):
+        return f'{self.user}, {self.blog}, {self.score}'       
 # Create your models here.
