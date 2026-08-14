@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
-from .models import Blog, Rate
+from .models import Blog, Rate, Comments
 from django.db.models import Avg
 from django.http import JsonResponse
 # Create your views here.
@@ -30,11 +30,16 @@ def blog_detail(request, id):
             star.append(True)
         else:
             star.append(False)
+    comments = Comments.objects.filter(
+        blog = blog,
+        parent = None
+    ).select_related("author").prefetch_related("replies__author")
     context = {
         "blog": blog,
         "average":average,
         "total": total,
-        "star": star
+        "star": star,
+        "comments": comments
     }
     return render(request, "blog/blog_detail.html", context)
 def blog_rate(request):
@@ -88,4 +93,59 @@ def blog_rate(request):
             # "average": round(float(average),1),
             "total": total
         })
+def blog_comment(request):
+    if request.method == "POST":
+        blog_id = request.POST.get("blog_id")
+        comment = request.POST.get("comment")
+        parent_id = request.POST.get("parent_id")
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                "success": False,
+                "login_required": True,
+                "message": "Vui lòng đăng nhập trước!"
+            }, status = 401)
+        user = request.user
+        # user_id = user_id
+        # user_name = user_name
+        blog = get_object_or_404(Blog, id = blog_id)
+
+        # khi cmt là cha 
+        parent = None
+        level = 0 
+
+        if parent_id:
+            parent = get_object_or_404(Comments, id = parent_id, blog=blog)
+            level = 1
+        data = {
+            "blog":blog,
+            "comment": comment,
+            "author": user,
+            "parent": parent,
+            "level": level
+        }
+        try:
+            new_comment = Comments.objects.create(**data)
+            comment_data ={ 
+               "id": new_comment.id,
+               "comment": new_comment.comment,
+               "username": new_comment.author.username,
+               "created_at": new_comment.created_at.strftime("%H:%M %d/%m/%Y"),
+               "parent_id": new_comment.parent_id,
+               "level": new_comment.level
+            }
+            return JsonResponse({
+                "success": True,
+                "data": comment_data
+            })
+        except Exception as e:
+            return JsonResponse({
+                "success": False,
+                "error": str(e)
+            })
+    return JsonResponse({
+        "success": False,
+        "error": "Invalid request"
+    })
+       
+
         

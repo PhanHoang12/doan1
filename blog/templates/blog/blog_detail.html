@@ -175,33 +175,93 @@
                     (<span id="total">{{ total }}</span> lượt đánh giá)
                 </p>
             </div>
-            <!-- comment -->
 
+            <!-- COMMENT -->
             <div class="response-area">
-                <h2>
-                    COMMENTS
-                </h2>
-                <p>
-                    Chưa có bình luận.
-                </p>
+                <h2>COMMENTS</h2>
+                <div id="comment-list">
+                    {% for comment in comments %}
+                    <!-- COMMENT CHA -->
+                    <div class="single-comment" id="comment-{{ comment.id }}">
+                        <div class="media">
+                            <div class="media-body">
+                                <h4 class="media-heading">
+                                    <i class="fa fa-user"></i>
+                                    {{ comment.author.username }}
+                                </h4>
+                                <p>
+                                    {{ comment.comment }}
+                                </p>
+                                <small>
+                                    <i class="fa fa-clock-o"></i>
+                                    {{ comment.created_at|date:"H:i d/m/Y" }}
+                                </small>
+                                <br><br>
+                                <!-- Nút Reply -->
+                                <button type="button" class="btn btn-default btn-sm reply-button"
+                                    data-id="{{ comment.id }}">
+                                    Reply
+                                </button>
+                                <!-- FORM REPLY -->
+                                <div class="reply-form" id="reply-form-{{ comment.id }}"
+                                    style="display:none; margin-top:15px;">
+                                    <textarea class="form-control reply-text" rows="3"
+                                        placeholder="Nhập nội dung reply..."></textarea>
+                                    <br>
+                                    <button type="button" class="btn btn-primary submit-reply"
+                                        data-parent="{{ comment.id }}">
+                                        Post Reply
+                                    </button>
+                                </div>
+                                <!-- CÁC COMMENT CON -->
+                                <div class="replies" style="margin-left:40px; margin-top:20px;">
+                                    {% for reply in comment.replies.all %}
+                                    <div class="single-reply" id="comment-{{ reply.id }}">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <h4 class="media-heading">
+                                                    <i class="fa fa-user"></i>
+                                                    {{ reply.author.username }}
+                                                </h4>
+                                                <p>
+                                                    {{ reply.comment }}
+                                                </p>
+                                                <small>
+                                                    <i class="fa fa-clock-o"></i>
+                                                    {{ reply.created_at|date:"H:i d/m/Y" }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                    {% empty %}
+                    <p id="no-comment">
+                        Chưa có bình luận.
+                    </p>
+                    {% endfor %}
+                </div>
             </div>
+            <!-- FORM COMMENT CHA -->
             <div class="replay-box">
-                <h2>
-                    Leave a reply
-                </h2>
-                <textarea rows="8" class="form-control"></textarea>
-                <br>
-                <button class="btn btn-primary">
-                    Post Comment
-                </button>
+                <h2>Leave a reply</h2>
+                <form id="comment-form">
+                    {% csrf_token %}
+                    <textarea id="comment-text" rows="8" class="form-control"
+                        placeholder="Nhập bình luận..."></textarea>
+                    <br>
+                    <button type="submit" class="btn btn-primary">
+                        Post Comment
+                    </button>
+                </form>
             </div>
-        </div>
-    </div>
-    </div>
 </section>
 <script>
     $(document).ready(function () {
-
         $(".blog-rating-star").click(function () {
             var checkLogin = "{{ user.is_authenticated }}";
             var blogId = "{{ blog.id }}";
@@ -248,7 +308,183 @@
                 }
             });
         });
+        $("#comment-form").submit(function (e) {
+            // console.log("Đã bắt được form comment");
 
+            e.preventDefault();
+            var checkLogin = "{{ user.is_authenticated }}";
+            if (checkLogin != "True") {
+                alert("Vui lòng đăng nhập để bình luận!");
+                return;
+            }
+            var comment = $("#comment-text").val().trim();
+            if (comment == "") {
+                alert("Vui lòng nhập bình luận!");
+                return;
+            }
+            $.ajax({
+                type: "POST",
+                url: "{% url 'blog_comment' %}",
+                data: {
+                    blog_id: "{{ blog.id }}",
+                    comment: comment,
+                    parent_id: "",
+                    csrfmiddlewaretoken:
+                        $("input[name='csrfmiddlewaretoken']").val()
+                },
+                success: function (data) {
+                    if (data.success) {
+                        var newComment = data.data
+                        var html = `<div class="single-comment" id="comment-${newComment.id}">
+                        <div class="media">
+                            <div class="media-body">
+                                <h4 class="media-heading">
+                                    <i class="fa fa-user"></i>
+                                    ${newComment.username}
+                                </h4>
+                                <p>
+                                    ${newComment.comment}
+                                </p>
+                                <small>
+                                    <i class="fa fa-clock-o"></i>
+                                    ${newComment.created_at}
+                                </small>
+                                <br><br>
+                                <!-- Nút Reply -->
+                                <button
+                                    type="button"
+                                    class="btn btn-default btn-sm reply-button"
+                                    data-id="${newComment.id}">
+                                    Reply
+                                </button>
+                                <!-- FORM REPLY -->
+                                <div
+                                    class="reply-form"
+                                    id="reply-form-${newComment.id}"
+                                    style="display:none; margin-top:15px;">
+                                    <textarea
+                                        class="form-control reply-text"
+                                        rows="3"
+                                        placeholder="Nhập nội dung reply...">
+                                    </textarea>
+                                    <br>
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary submit-reply"
+                                        data-parent="${newComment.id}">
+                                        Post Reply
+                                    </button>
+                                </div>
+                                <!-- Nơi chứa comment con -->
+                                <div
+                                    class="replies"
+                                    style="margin-left:40px; margin-top:20px;">
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                `;
+                        $("#no-comment").remove()
+                        $("#comment-list").append(html)
+                        $("#comment-text").val("");
+                        alert("Bình luận thành công!");
+                        // $("#comment-text").val("");
+                        // console.log(data.data);
+                    } else {
+                        alert(data.error);
+                    }
+                },
+                error: function (xhr) {
+                    if (xhr.status == 401) {
+                        alert("Vui lòng đăng nhập để bình luận!");
+                    }
+                }
+            });
+        });
+        $(document).on("click", ".reply-button", function () {
+            var commentId = $(this).data("id")
+            var form = $("#reply-form-" + commentId);
+
+            $(".reply-form").not(form).slideUp();
+            form.slideToggle();
+        });
+    });
+    $(document).on("click", ".submit-reply", function () {
+        var button = $(this)
+        var parentId = button.data("parent")
+        var form = $("#reply-form-" + parentId)
+        var textarea = form.find(".reply-text");
+        var replyText = textarea.val().trim();
+        var checkLogin = "{{ user.is_authenticated }}";
+        if (checkLogin != "True") {
+            alert("Vui lòng đăng nhập để trả lời bình luận")
+            return;
+        }
+        if (replyText == "") {
+            alert("Vui lòng nhập nội dung trả lời")
+            textarea.focus();
+            return;
+        }
+        $.ajax({
+
+            type: "POST",
+
+            url: "{% url 'blog_comment' %}",
+
+            data: {
+                blog_id: "{{ blog.id }}",
+                comment: replyText,
+                parent_id: parentId,
+
+                csrfmiddlewaretoken:
+                    $("input[name='csrfmiddlewaretoken']").first().val()
+            },
+            success: function (data) {
+                if (data.success) {
+                    var newReply = data.data
+                    var html = `
+                    <div class="single-reply"
+                         id="comment-${newReply.id}">
+                        <div class="media">
+                            <div class="media-body">
+                                <h4 class="media-heading">
+                                    <i class="fa fa-user"></i>
+                                    ${newReply.username}
+                                </h4>
+                                <p>
+                                    ${newReply.comment}
+                                </p>
+                                <small>
+                                    <i class="fa fa-clock-o"></i>
+                                    ${newReply.created_at}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                    //  để tìm cmt pảent
+                    var parentComment = $("#comment-" + parentId)
+                    // Tìm khu vực replies
+                    var replies =
+                        parentComment.find(".replies").first();
+                    replies.append(html);
+                    textarea.val("");
+                    form.slideUp();
+                    alert("Trả lời thành công!")
+                } else {
+                    console.log(data.error);
+                }
+            },
+            error: function (xhr) {
+                console.log(xhr.responseText);
+                if (xhr.status == 401) {
+                    alert("Vui lòng đăng nhập để reply!");
+                } else {
+                    alert("Có lỗi xảy ra khi gửi reply!");
+                }
+            }
+        });
     });
 </script>
 {% endblock %}
