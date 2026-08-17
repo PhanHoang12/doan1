@@ -36,3 +36,15 @@ class RegisterUser(forms.ModelForm):
         if password and confirm_password and password != confirm_password:
             raise ValidationError("Mật khẩu và xác nhận mật khẩu không khớp")
         return cleaned_data
+class UpdateUserForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput, max_length=100, required=False)
+    class Meta:
+        model = CustomUser
+        fields = [
+            'username',
+            'email',
+            'avatar',
+            'first_name',
+            'last_name',
+            'id_country'
+        ]
