@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+My Product
+{% endblock %}
+
+{% block content %}
+
+<section>
+    <div class="container">
+        <div class="row">
+            <!-- LEFT SIDEBAR -->
+            <div class="col-sm-3">
+                <div class="left-sidebar">
+                    <h2>Account</h2>
+                    <div class="panel-group category-products">
+                        <!-- Account -->
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="{% url 'account_update' %}">
+                                        Account
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                        <!-- My Product -->
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="{% url 'my_product' %}">
+                                        My Product
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- RIGHT CONTENT -->
+            <div class="col-sm-9">
+                <div class="blog-post-area">
+                    <h2 class="title text-center">
+                        My Product
+                    </h2>
+                    {% if products %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Name</th>
+                                    <th>Image</th>
+                                    <th>Price</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <!-- ID -->
+                                    <td>
+                                        {{ product.id }}
+                                    </td>
+                                    <!-- NAME -->
+                                    <td>
+                                        {{ product.name }}
+                                    </td>
+                                    <!-- IMAGE -->
+                                    <td>
+                                        {% if product.image_filenames %}
+                                        <img src="/media/{{ product.image_filenames.0 }}" alt="{{ product.name }}"
+                                            width="80" height="80" style="object-fit: cover;">
+                                        {% else %}
+                                        Không có ảnh
+                                        {% endif %}
+                                    </td>
+                                    <!-- PRICE -->
+                                    <td>
+                                        ${{ product.price }}
+                                    </td>
+                                    <!-- ACTION -->
+                                    <td>
+                                        <a href="#" title="Edit" style="margin-right: 20px;">
+                                            <i class="fa fa-pencil-square-o"></i>
+                                        </a>
+                                        <a href="#" title="Delete">
+                                            <i class="fa fa-times"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <h3 class="text-center">
+                        Không có mặt hàng nào
+                    </h3>
+                    {% endif %}
+                    <!-- ADD NEW -->
+                    <div style="text-align: right; margin-top: 20px;">
+                        <a href="{% url 'created_product' %}" class="btn btn-default">
+                            Add New
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

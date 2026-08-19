@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Create Product
+{% endblock %}
+
+{% block content %}
+
+<section>
+    <div class="container">
+        <div class="row">
+
+            <!-- LEFT ACCOUNT MENU -->
+            <div class="col-sm-3">
+                <div class="left-sidebar">
+
+                    <h2>Account</h2>
+
+                    <div class="panel-group category-products">
+
+                        <!-- Account -->
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="{% url 'account_update' %}">
+                                        Account
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+
+                        <!-- My product -->
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="#">
+                                        My product
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- RIGHT CREATE PRODUCT -->
+            <div class="col-sm-9">
+
+                <div class="blog-post-area">
+
+                    <h2 class="title text-center">
+                        Create Product
+                    </h2>
+
+                    <div class="signup-form">
+
+                        <form method="POST" enctype="multipart/form-data">
+
+                            {% csrf_token %}
+
+                            {{ form.name }}
+
+                            {{ form.price }}
+
+                            {{ form.category }}
+
+                            {{ form.brand }}
+
+                            {{ form.sale }}
+                            <div id="sale-price" style="display: none; margin-top: 10px;">
+                                {{ form.sale_price }}
+                            </div>
+
+                            {{ form.company_profile }}
+
+                            {{ form.detail }}
+
+                            {{ form.images }}
+
+                            <button type="submit" class="btn btn-default">
+                                Create Product
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const saleSelect = document.getElementById("id_sale");
+        const salePrice = document.getElementById("sale-price");
+
+        function checkSale() {
+            if (saleSelect.value === "1") {
+                salePrice.style.display = "block";
+            } else {
+                salePrice.style.display = "none";
+            }
+        }
+        saleSelect.addEventListener("change", checkSale);
+        checkSale();
+    });
+</script>
+
+{% endblock %}
