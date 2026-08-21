@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Update Product
+{% endblock %}
+
+{% block content %}
+
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="left-sidebar">
+                    <h2>Account</h2>
+                    <div class="panel-group category-products">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="{% url 'account_update' %}">
+                                        Account
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="{% url 'my_product' %}">
+                                        My product
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-9">
+                <div class="blog-post-area">
+                    <h2 class="title text-center">
+                        Update Product
+                    </h2>
+                    <div class="signup-form">
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <div class="text-danger">
+                                {{ form.name.errors }}
+                            </div>
+                            {% endif %}
+                            {{ form.price }}
+                            {% if form.price.errors %}
+                            <div class="text-danger">
+                                {{ form.price.errors }}
+                            </div>
+                            {% endif %}
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                            <div class="text-danger">
+                                {{ form.category.errors }}
+                            </div>
+                            {% endif %}
+                            {{ form.brand }}
+                            {% if form.brand.errors %}
+                            <div class="text-danger">
+                                {{ form.brand.errors }}
+                            </div>
+                            {% endif %}
+                            {{ form.sale }}
+                            {% if form.sale.errors %}
+                            <div class="text-danger">
+                                {{ form.sale.errors }}
+                            </div>
+                            {% endif %}
+                            <div id="sale-price" style="display: none; margin-top: 10px;">
+                                {{ form.sale_price }}
+                                {% if form.sale_price.errors %}
+                                <div class="text-danger">
+                                    {{ form.sale_price.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {{ form.company_profile }}
+                            {% if form.company_profile.errors %}
+                            <div class="text-danger">
+                                {{ form.company_profile.errors }}
+                            </div>
+                            {% endif %}
+                            {{ form.detail }}
+
+                            {% if form.detail.errors %}
+                            <div class="text-danger">
+                                {{ form.detail.errors }}
+                            </div>
+                            {% endif %}
+                            <div style="margin-top: 20px;">
+                                <label>
+                                    Current Images
+                                </label>
+                                <div style="
+                                        display: flex;
+                                        gap: 20px;
+                                        flex-wrap: wrap;
+                                        margin-top: 10px;
+                                    ">
+                                    {% for image in old_images %}
+                                    <div style="
+                                                text-align: center;
+                                                border: 1px solid #ddd;
+                                                padding: 10px;
+                                            ">
+                                        <img src="/media/{{ image }}" width="100" height="100" style="
+                                                    object-fit: cover;
+                                                    display: block;
+                                                    margin-bottom: 10px;
+                                                ">
+                                        <label>
+                                            <input type="checkbox" name="delete_images" value="{{ image }}">
+                                            Delete
+                                        </label>
+                                    </div>
+                                    {% empty %}
+                                    <p>
+                                        No images.
+                                    </p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div style="margin-top: 20px;">
+                                <label>
+                                    Add new images
+                                </label>
+                                {{ form.images }}
+                                {% if form.images.errors %}
+                                <div class="text-danger">
+                                    {{ form.images.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% if form.non_field_errors %}
+                            <div class="text-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                            {% endif %}
+                            <button type="submit" class="btn btn-default" style="margin-top: 20px;">
+                                Update Product
+                            </button>
+                            <a href="{% url 'my_product' %}" class="btn btn-default" style="margin-top: 20px;">
+                                Cancel
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const saleSelect =
+            document.getElementById("sale-select");
+        const salePrice =
+            document.getElementById("sale-price");
+        function checkSale() {
+            if (saleSelect.value === "1") {
+                salePrice.style.display = "block";
+            } else {
+                salePrice.style.display = "none";
+            }
+        }
+        saleSelect.addEventListener(
+            "change",
+            checkSale
+        );
+        checkSale();
+    });
+</script>
+{% endblock %}
