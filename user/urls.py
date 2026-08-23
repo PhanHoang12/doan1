@@ -10,4 +10,5 @@ urlpatterns = [
     path("account/update", views.account_update, name="account_update"),
     # path("account/my-product", views.my_product, name="my_product"),
     # path("account/add-product", views.add_product, name="add_product"),
+
 ]

@@ -116,6 +116,14 @@ def delete_product(request, id):
         product.delete()
         messages.success(request, "Delete product successfully!")
     return redirect("my_product")
+@login_required
+def product_detail(request, id):
+    product = get_object_or_404(Product, id=id)
+    if product.images:
+        product.image_filenames = json.loads(product.images)
+    else:
+        product.image.filenames = []
+    return render(request, "product/product_detail.html", {"product":product})
 
 
     

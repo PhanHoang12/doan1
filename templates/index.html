@@ -221,7 +221,39 @@
 
             <div class="col-sm-9 padding-right">
                 <div class="features_items"><!--features_items-->
-                    <h2 class="title text-center">Features Items</h2>
+
+                    <h2 class="title text-center">Sản phẩm mới nhất </h2>
+                    {% for product in products %}
+                    <div class="col-sm-4">
+                        <div class="product-image-wrapper">
+                            <div class="single-products">
+                                <div class="productinfo text-center">
+                                    <a href="{% url 'product_detail' product.id %}">
+                                        {% if product.image_filenames %}
+                                        <img src="/media/{{ product.image_filenames.0 }}" alt="{{ product.name }}">
+                                        {% else %}
+                                        <img src="{% static 'images/no-image.png' %}" alt="Không có ảnh">
+                                        {% endif %}
+                                    </a>
+                                    <h2>${{product.price}}</h2>
+                                    <a href="{% url 'product_detail' product.id %}">
+                                        <p>{{product.name}}</p>
+                                    </a>
+                                    <a href="#" class="btn btn-default add-to-cart">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        Add to cart
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center">
+                        Chưa có sản phẩm nào.
+                    </p>
+                    {% endfor %}
+
+                    <!-- <h2 class="title text-center">Features Items</h2>
                     <div class="col-sm-4">
                         <div class="product-image-wrapper">
                             <div class="single-products">
@@ -385,7 +417,7 @@
                                 </ul>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                 </div><!--features_items-->
 

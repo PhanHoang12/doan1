@@ -197,12 +197,10 @@
                                     {{ comment.created_at|date:"H:i d/m/Y" }}
                                 </small>
                                 <br><br>
-                                <!-- Nút Reply -->
                                 <button type="button" class="btn btn-default btn-sm reply-button"
                                     data-id="{{ comment.id }}">
                                     Reply
                                 </button>
-                                <!-- FORM REPLY -->
                                 <div class="reply-form" id="reply-form-{{ comment.id }}"
                                     style="display:none; margin-top:15px;">
                                     <textarea class="form-control reply-text" rows="3"
@@ -308,182 +306,166 @@
                 }
             });
         });
-        $("#comment-form").submit(function (e) {
-            // console.log("Đã bắt được form comment");
-
-            e.preventDefault();
+        function sendComment(commentText, parentId, level, textarea, form) {
             var checkLogin = "{{ user.is_authenticated }}";
             if (checkLogin != "True") {
                 alert("Vui lòng đăng nhập để bình luận!");
                 return;
             }
-            var comment = $("#comment-text").val().trim();
-            if (comment == "") {
-                alert("Vui lòng nhập bình luận!");
+            if (commentText == "") {
+                alert("Vui lòng nhập nội dung!");
+                textarea.focus();
                 return;
             }
+            // ajax
             $.ajax({
                 type: "POST",
                 url: "{% url 'blog_comment' %}",
                 data: {
                     blog_id: "{{ blog.id }}",
-                    comment: comment,
-                    parent_id: "",
+                    comment: commentText,
+                    // Comment cha: ""
+                    // Comment con: id comment cha
+                    parent_id: parentId,
                     csrfmiddlewaretoken:
-                        $("input[name='csrfmiddlewaretoken']").val()
+                        $("input[name='csrfmiddlewaretoken']").first().val()
                 },
                 success: function (data) {
                     if (data.success) {
-                        var newComment = data.data
-                        var html = `<div class="single-comment" id="comment-${newComment.id}">
-                        <div class="media">
-                            <div class="media-body">
-                                <h4 class="media-heading">
-                                    <i class="fa fa-user"></i>
-                                    ${newComment.username}
-                                </h4>
-                                <p>
-                                    ${newComment.comment}
-                                </p>
-                                <small>
-                                    <i class="fa fa-clock-o"></i>
-                                    ${newComment.created_at}
-                                </small>
-                                <br><br>
-                                <!-- Nút Reply -->
-                                <button
-                                    type="button"
-                                    class="btn btn-default btn-sm reply-button"
-                                    data-id="${newComment.id}">
-                                    Reply
-                                </button>
-                                <!-- FORM REPLY -->
-                                <div
-                                    class="reply-form"
-                                    id="reply-form-${newComment.id}"
-                                    style="display:none; margin-top:15px;">
-                                    <textarea
-                                        class="form-control reply-text"
-                                        rows="3"
-                                        placeholder="Nhập nội dung reply...">
-                                    </textarea>
-                                    <br>
+                        var newComment = data.data;
+                        // LEVEL 0: cmt cha
+                        if (level == 0) {
+                            var html = `
+                        <div class="single-comment"
+                             id="comment-${newComment.id}">
+                            <div class="media">
+                                <div class="media-body">
+                                    <h4 class="media-heading">
+                                        <i class="fa fa-user"></i>
+                                        ${newComment.username}
+                                    </h4>
+                                    <p>
+                                        ${newComment.comment}
+                                    </p>
+                                    <small>
+                                        <i class="fa fa-clock-o"></i>
+                                        ${newComment.created_at}
+                                    </small>
+                                    <br><br>
+                                    <!-- Nút Reply -->
                                     <button
                                         type="button"
-                                        class="btn btn-primary submit-reply"
-                                        data-parent="${newComment.id}">
-                                        Post Reply
+                                        class="btn btn-default btn-sm reply-button"
+                                        data-id="${newComment.id}">
+                                        Reply
                                     </button>
+                                    <!-- FORM REPLY -->
+                                    <div
+                                        class="reply-form"
+                                        id="reply-form-${newComment.id}"
+                                        style="display:none; margin-top:15px;">
+                                        <textarea
+                                            class="form-control reply-text"
+                                            rows="3"
+                                            placeholder="Nhập nội dung reply..."></textarea>
+                                        <br>
+                                        <button
+                                            type="button"
+                                            class="btn btn-primary submit-reply"
+                                            data-parent="${newComment.id}">
+                                            Post Reply
+                                        </button>
+                                    </div>
+                                    <!-- comment con -->
+                                    <div
+                                        class="replies"
+                                        style="margin-left:40px; margin-top:20px;">
+                                    </div>
                                 </div>
-                                <!-- Nơi chứa comment con -->
-                                <div
-                                    class="replies"
-                                    style="margin-left:40px; margin-top:20px;">
+                            </div>
+                            <hr>
+                        </div>
+                    `;
+                            // Xóa dòng "Chưa có bình luận"
+                            $("#no-comment").remove();
+                            // Thêm comment cha
+                            $("#comment-list").append(html);
+                        }
+                        else if (level == 1) {
+                            var html = `
+                        <div class="single-reply"
+                             id="comment-${newComment.id}">
+                            <div class="media">
+                                <div class="media-body">
+                                    <h4 class="media-heading">
+                                        <i class="fa fa-user"></i>
+                                        ${newComment.username}
+                                    </h4>
+                                    <p>
+                                        ${newComment.comment}
+                                    </p>
+                                    <small>
+                                        <i class="fa fa-clock-o"></i>
+                                        ${newComment.created_at}
+                                    </small>
                                 </div>
                             </div>
                         </div>
-                        <hr>
-                    </div>
-                `;
-                        $("#no-comment").remove()
-                        $("#comment-list").append(html)
-                        $("#comment-text").val("");
-                        alert("Bình luận thành công!");
-                        // $("#comment-text").val("");
-                        // console.log(data.data);
+                    `;
+                            // Tìm comment cha
+                            var parentComment =
+                                $("#comment-" + parentId);
+                            var replies = parentComment.find(".replies").first();
+                            replies.append(html);
+                            if (form) {
+                                form.slideUp();
+                            }
+                        }
+                        textarea.val("");
+                        alert(
+                            level == 0
+                                ? "Bình luận thành công!"
+                                : "Trả lời thành công!"
+                        );
                     } else {
                         alert(data.error);
                     }
                 },
                 error: function (xhr) {
+                    console.log(xhr.responseText);
                     if (xhr.status == 401) {
-                        alert("Vui lòng đăng nhập để bình luận!");
+                        alert("Vui lòng đăng nhập!");
+                    } else {
+                        alert("Có lỗi xảy ra!");
                     }
                 }
             });
+        }
+        $("#comment-form").submit(function (e) {
+            e.preventDefault();
+            var textarea = $("#comment-text");
+            var commentText = textarea.val().trim();
+            sendComment(
+                commentText, "", 0, textarea, null
+            );
         });
         $(document).on("click", ".reply-button", function () {
-            var commentId = $(this).data("id")
+            var commentId = $(this).data("id");
             var form = $("#reply-form-" + commentId);
-
             $(".reply-form").not(form).slideUp();
             form.slideToggle();
         });
-    });
-    $(document).on("click", ".submit-reply", function () {
-        var button = $(this)
-        var parentId = button.data("parent")
-        var form = $("#reply-form-" + parentId)
-        var textarea = form.find(".reply-text");
-        var replyText = textarea.val().trim();
-        var checkLogin = "{{ user.is_authenticated }}";
-        if (checkLogin != "True") {
-            alert("Vui lòng đăng nhập để trả lời bình luận")
-            return;
-        }
-        if (replyText == "") {
-            alert("Vui lòng nhập nội dung trả lời")
-            textarea.focus();
-            return;
-        }
-        $.ajax({
-
-            type: "POST",
-
-            url: "{% url 'blog_comment' %}",
-
-            data: {
-                blog_id: "{{ blog.id }}",
-                comment: replyText,
-                parent_id: parentId,
-
-                csrfmiddlewaretoken:
-                    $("input[name='csrfmiddlewaretoken']").first().val()
-            },
-            success: function (data) {
-                if (data.success) {
-                    var newReply = data.data
-                    var html = `
-                    <div class="single-reply"
-                         id="comment-${newReply.id}">
-                        <div class="media">
-                            <div class="media-body">
-                                <h4 class="media-heading">
-                                    <i class="fa fa-user"></i>
-                                    ${newReply.username}
-                                </h4>
-                                <p>
-                                    ${newReply.comment}
-                                </p>
-                                <small>
-                                    <i class="fa fa-clock-o"></i>
-                                    ${newReply.created_at}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                    //  để tìm cmt pảent
-                    var parentComment = $("#comment-" + parentId)
-                    // Tìm khu vực replies
-                    var replies =
-                        parentComment.find(".replies").first();
-                    replies.append(html);
-                    textarea.val("");
-                    form.slideUp();
-                    alert("Trả lời thành công!")
-                } else {
-                    console.log(data.error);
-                }
-            },
-            error: function (xhr) {
-                console.log(xhr.responseText);
-                if (xhr.status == 401) {
-                    alert("Vui lòng đăng nhập để reply!");
-                } else {
-                    alert("Có lỗi xảy ra khi gửi reply!");
-                }
-            }
+        $(document).on("click", ".submit-reply", function () {
+            var button = $(this);
+            var parentId = button.data("parent");
+            var form = $("#reply-form-" + parentId);
+            var textarea = form.find(".reply-text");
+            var replyText = textarea.val().trim();
+            sendComment(
+                replyText,
+                parentId,   // id comment cha
+                1, textarea, form // level 1 = con 
+            );
         });
     });
 </script>

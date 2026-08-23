@@ -4,11 +4,20 @@ from django.contrib.auth.forms import AuthenticationForm
 from .form import RegisterUser, UpdateUserForm
 from django.contrib.auth.decorators import login_required
 from country.models import Country
+from product.models import Product
+import json
 
 
 # Create your views here.
 def home(request):
-    return render(request, 'index.html')
+    # return render(request, 'index.html')
+    products = Product.objects.all().order_by('-created_at')[:6]
+    for product in products:
+        if product.images:
+            product.image_filenames = json.loads(product.images)
+        else:
+            product.image_filenames = []
+    return render(request, "index.html", {"products": products})
 def register_view(request):
     if request.method == "POST":
         form = RegisterUser(request.POST, request.FILES)

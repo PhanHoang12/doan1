@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+{{ product.name }}
+{% endblock %}
+
+{% block content %}
+<style>
+    .view-product img {
+        width: 100%;
+        height: 380px;
+        object-fit: contain;
+        cursor: zoom-in;
+    }
+
+    .product-thumbnails {
+        display: flex;
+        gap: 8px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+        margin-left: 50px;
+    }
+
+    .product-thumbnail {
+        width: 85px;
+        height: 85px;
+        object-fit: cover;
+        border: 2px solid #ddd;
+        padding: 2px;
+        cursor: pointer;
+    }
+
+    .product-thumbnail:hover,
+    .product-thumbnail.active-thumbnail {
+        border-color: #FE980F;
+    }
+
+    .image-popup {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image-popup img {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+    }
+
+    .image-popup-close {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: #fff;
+        font-size: 42px;
+        cursor: pointer;
+    }
+</style>
+
+<section>
+    <div class="container">
+        <div class="row">
+            <!-- <div class="col-sm-3">
+                <div class="left-sidebar">
+                    <h2>Category</h2>
+                    <div class="panel-group category-products">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title"><a href="#">Sportswear</a></h4>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title"><a href="#">Mens</a></h4>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title"><a href="#">Womens</a></h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+            <div class="col-sm-12 padding-right">
+                <div class="product-details">
+                    <!-- IMAGES -->
+                    <div class="col-sm-5">
+                        <div class="view-product">
+                            {% if product.image_filenames %}
+                            <img id="main-product-image" src="/media/{{ product.image_filenames.0 }}"
+                                alt="{{ product.name }}" onclick="openImagePopup(this.src)">
+                            {% else %}
+                            <p class="text-center">Không có hình ảnh</p>
+                            {% endif %}
+                        </div>
+
+                        {% if product.image_filenames %}
+                        <div class="product-thumbnails">
+                            {% for image in product.image_filenames|slice:":3" %}
+                            <img src="/media/{{ image }}" alt="{{ product.name }}"
+                                class="product-thumbnail {% if forloop.first %}active-thumbnail{% endif %}"
+                                onclick="changeProductImage(this)">
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- INFORMATION -->
+                    <div class="col-sm-7">
+                        <div class="product-information">
+                            <h2>{{ product.name }}</h2>
+                            <p>Web ID: {{ product.id }}</p>
+
+                            <!-- <img src="{% static 'images/product-details/rating.png' %}" alt="Rating"> -->
+
+                            <span>
+                                <span>US ${{ product.price }}</span>
+                                <label>Quantity:</label>
+                                <input type="text" value="1">
+                                <button type="button" class="btn btn-fefault cart">
+                                    <i class="fa fa-shopping-cart"></i>
+                                    Add to cart
+                                </button>
+                            </span>
+
+                            {% if product.category %}
+                            <p><b>Category:</b> {{ product.category }}</p>
+                            {% endif %}
+
+                            {% if product.brand %}
+                            <p><b>Brand:</b> {{ product.brand }}</p>
+                            {% endif %}
+
+                            {% if product.condition %}
+                            <p><b>Condition:</b> {{ product.condition }}</p>
+                            {% endif %}
+
+                            {% if product.description %}
+                            <p><b>Description:</b> {{ product.description }}</p>
+                            {% endif %}
+
+                            {% if product.created_at %}
+                            <p><b>Created Date:</b> {{ product.created_at|date:"d/m/Y H:i" }}</p>
+                            {% endif %}
+
+                            {% if product.user %}
+                            <p><b>Seller:</b> {{ product.user.username }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="image-popup" class="image-popup" onclick="closeImagePopup(event)">
+    <span class="image-popup-close" onclick="closeImagePopup(event)">&times;</span>
+    <img id="popup-image" src="" alt="Full size product image">
+</div>
+
+<script>
+    function changeProductImage(element) {
+        const mainImage = document.getElementById("main-product-image");
+        if (!mainImage) return;
+
+        mainImage.src = element.src;
+
+        document.querySelectorAll(".product-thumbnail").forEach(function (image) {
+            image.classList.remove("active-thumbnail");
+        });
+
+        element.classList.add("active-thumbnail");
+    }
+
+    function openImagePopup(imageSrc) {
+        const popup = document.getElementById("image-popup");
+        const popupImage = document.getElementById("popup-image");
+
+        popupImage.src = imageSrc;
+        popup.style.display = "flex";
+    }
+
+    function closeImagePopup(event) {
+        if (event.target.id === "popup-image") return;
+        document.getElementById("image-popup").style.display = "none";
+    }
+</script>
+{% endblock %}
