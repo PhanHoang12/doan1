@@ -216,6 +216,32 @@ def update_cart(request):
     return JsonResponse({
         "success": False
     })
+def checkout(request):
+    cart = request.session.get("cart",{})
+    cart_items = []
+    cart_subtotal = 0 
+    for product_id, quantity in cart.items():
+        product = Product.objects.filter(id=product_id).first()
+        if product:
+            images = json.loads(product.images) if product.images else []
+            item_total = product.price * quantity
+            cart_subtotal += item_total
+            cart_items.append({
+                "product": product,
+                "quantity": quantity,
+                "images": images,
+                "item_total": item_total
+            })
+    tax = 2
+    cart_total = cart_subtotal + tax
+    context = {
+        "cart_items": cart_items,
+        "cart_subtotal": cart_subtotal,
+        "tax": tax,
+        "cart_total": cart_total
+    }
+
+    return render(request, "product/checkout.html", context)
 
 
 # Create your views here.
