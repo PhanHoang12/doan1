@@ -6,6 +6,7 @@ import os
 from django.conf import settings
 from .models import Product
 from django.contrib import messages
+from django.http import JsonResponse
 
 
 @login_required
@@ -122,10 +123,99 @@ def product_detail(request, id):
     if product.images:
         product.image_filenames = json.loads(product.images)
     else:
-        product.image.filenames = []
+        product.image_filenames = []
     return render(request, "product/product_detail.html", {"product":product})
 
+def add_to_cart(request):
+    product_id = request.POST.get("product_id")
+    product = get_object_or_404(Product, id=product_id)
+    cart = request.session.get("cart",{})
+    product_id = str(product_id)
+    if product_id in cart:
+        cart[product_id] += 1
+    else:
+        cart[product_id] =1
+    request.session["cart"] = cart
+    request.session.modified = True
+    cart_count = sum(cart.values())
+    return JsonResponse({
+        "success":True,
+        "cart_count": cart_count
+    })
+def cart(request):
+    # return render(request, "product/cart.html")
+    cart = request.session.get("cart", {})
+    cart_items = []
+    cart_total = 0
+    for product_id, quantity in cart.items():
+        product = Product.objects.filter(id=product_id).first()
+        if product:
+            if product.images:
+                image_filenames = json.loads(product.images)
+            else:
+                image_filenames = []
+            item_total = product.price * quantity
+            cart_total += item_total
+            cart_items.append({
+                "product": product,
+                "quantity": quantity,
+                "images": image_filenames,
+                "item_total": item_total
+            })
+    return render(request, "product/cart.html", {"cart_items": cart_items, "cart_total":cart_total})
+def update_cart(request):
+    if request.method == "POST":
+        product_id = request.POST.get("product_id")
+        action = request.POST.get("action")
+        cart = request.session.get('cart',{})
+        product_id = str(product_id)
+        if product_id in cart:
+            if action == "increase":
+                cart[product_id] += 1
+            elif action == "decrease":
+                if cart[product_id] > 1:
+                    cart[product_id] -= 1
+                else:
+                    return JsonResponse({
+                        "success": False,
+                        "message": "Số lượng sản phẩm tối thiểu là 1!"
+                    })
+            elif action == "delete":
+                del cart[product_id]
+                # request.session['cart'] = cart
+                # request.session.modified = True
+                # return JsonResponse({
+                #     "success":True,
+                #     "product_id": product_id,
+                #     "action": "delete",
+                # })
+            request.session['cart'] = cart
+            request.session.modified = True
+            # Tính tổng toàn bộ để gửi ajax
+            cart_total = 0
+            for id, quantity in cart.items():
+                product = Product.objects.filter(id=id).first()
+                if product:
+                    cart_total += product.price * quantity
+            if action == "delete":
+                return JsonResponse({
+                    "success": True,
+                    "action": action,
+                    "product_id": product_id,
+                    "cart_total": cart_total
+                })
+            product = get_object_or_404(Product, id=product_id)
+            quantity = cart[product_id]
+            item_total = product.price * quantity
+            return JsonResponse({
+                "success": True,
+                "quantity": quantity,
+                "item_total": item_total,
+                "cart_total": cart_total
+            })
+    return JsonResponse({
+        "success": False
+    })
 
-    
 
 # Create your views here.

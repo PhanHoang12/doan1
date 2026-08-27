@@ -239,7 +239,7 @@
                                     <a href="{% url 'product_detail' product.id %}">
                                         <p>{{product.name}}</p>
                                     </a>
-                                    <a href="#" class="btn btn-default add-to-cart">
+                                    <a href="#" class="btn btn-default add-to-cart" data-product-id="{{product.id}}">
                                         <i class="fa fa-shopping-cart"></i>
                                         Add to cart
                                     </a>
@@ -836,4 +836,32 @@
         </div>
     </div>
 </section>
+{% csrf_token %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const csrfToken = document.querySelector(
+            "input[name='csrfmiddlewaretoken']").value;
+        document.querySelectorAll(".add-to-cart").forEach(function (button) {
+            button.addEventListener("click", function (e) {
+                e.preventDefault();
+                const productId = this.dataset.productId;
+                fetch("{% url 'add_to_cart' %}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrfToken,
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "product_id=" + productId
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById("cart-count").textContent =
+                                data.cart_count;
+                        }
+                    });
+            });
+        });
+    });
+</script>
 {% endblock %}
