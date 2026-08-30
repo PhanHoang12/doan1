@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-Create Product
+Check out
 {% endblock %}
 
 {% block content %}
@@ -44,14 +44,84 @@ Create Product
                 <div class="col-sm-3">
                     <div class="shopper-info">
                         <p>Shopper Information</p>
-                        <form>
+                        <!-- <form>
                             <input type="text" placeholder="Display Name">
                             <input type="text" placeholder="User Name">
                             <input type="password" placeholder="Password">
                             <input type="password" placeholder="Confirm password">
                         </form>
                         <a class="btn btn-primary" href="">Get Quotes</a>
-                        <a class="btn btn-primary" href="">Continue</a>
+                        <a class="btn btn-primary" href="">Continue</a> -->
+                        {% if user.is_authenticated %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="text" name="name" placeholder="Full name"
+                                value="{{ user.get_full_name|default:user.username }}" required>
+                            <input type="email" value="{{user.email}}" placeholder="Email" readonly>
+                            <input type="text" name="phone" placeholder="Phone number" required>
+                            <button type="submit" class="btn btn-primary">
+                                Order
+                            </button>
+                        </form>
+                        {% else %}
+                        <!-- <p>
+                            Vui lòng đăng nhập trước khi đặt hàng !
+                        </p> -->
+
+                        <!-- Update sau khi làm chức năng order -->
+                        <p>Đăng ký nhanh & đặt hàng</p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="text" name="username" placeholder="Username"
+                                value="{{ register_form.username.value|default:'' }}" required>
+                            {% if register_form.username.errors %}
+                            <div style="color:red;">
+                                {{ register_form.username.errors }}
+                            </div>
+                            {% endif %}
+
+                            <input type="email" name="email" placeholder="Email"
+                                value="{{ register_form.email.value|default:'' }}" required>
+                            {% if register_form.email.errors %}
+                            <div style="color:red;">
+                                {{ register_form.email.errors }}
+                            </div>
+                            {% endif %}
+
+                            <input type="text" name="first_name" placeholder="First Name"
+                                value="{{ register_form.first_name.value|default:'' }}">
+
+                            <input type="text" name="last_name" placeholder="Last Name"
+                                value="{{ register_form.last_name.value|default:'' }}">
+
+                            <input type="text" name="phone" placeholder="Phone number"
+                                value="{{ request.POST.phone|default:'' }}" required>
+
+                            <input type="password" name="password" placeholder="Password" required>
+                            {% if register_form.password.errors %}
+                            <div style="color:red;">
+                                {{ register_form.password.errors }}
+                            </div>
+                            {% endif %}
+
+                            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+                            {% if register_form.non_field_errors %}
+                            <div style="color:red;">
+                                {{ register_form.non_field_errors }}
+                            </div>
+                            {% endif %}
+
+                            {% if register_form.errors %}
+                            <div style="color:red;">
+                                {{ register_form.errors }}
+                            </div>
+                            {% endif %}
+
+                            <button type="submit" class="btn btn-primary">
+                                Register & Order
+                            </button>
+                        </form>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="col-sm-5 clearfix">
@@ -115,7 +185,7 @@ Create Product
         <div class="review-payment">
             <h2>Review & Payment</h2>
         </div>
-        {% csrf_token %}
+        <!-- {% csrf_token %} -->
         <div class="table-responsive cart_info">
             <table class="table table-condensed">
                 <thead>

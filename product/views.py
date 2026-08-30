@@ -4,9 +4,14 @@ from .forms import ProductForm
 import json
 import os
 from django.conf import settings
-from .models import Product
+from .models import Product, History
 from django.contrib import messages
 from django.http import JsonResponse
+from user.form import RegisterUser
+from django.contrib.auth import login
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.db import connection
 
 
 @login_required
@@ -234,14 +239,116 @@ def checkout(request):
             })
     tax = 2
     cart_total = cart_subtotal + tax
+    register_form = RegisterUser()
+    if request.method == "POST":
+        # if not request.user.is_authenticated:
+        #     messages.warning(request, "VUi lòng đăng nhập trước khi đặt hàng!")
+        #     return redirect("checkout")
+        if not cart_items:
+            messages.warning(request, "Giỏ hàng của bạn đang rỗng!")
+            return redirect("checkout")
+        if request.user.is_authenticated:
+            name = request.POST.get("name", "").strip()
+            phone = request.POST.get("phone", "").strip()
+            email = request.user.email
+            if not name or not phone:
+                messages.error(request, "Vui lòng nhập số điện thoại hoặc tên trước khi đặt hàng!")
+            elif not email:
+                messages.error(request, "Tài khoản của bạn chưa có email!")
+            else:
+                History.objects.create(
+                    user = request.user,
+                    name = name,
+                    email = email, 
+                    phone = phone,
+                    price = cart_total
+                )
+                send_order_email(
+                    email=email,
+                    name=name,
+                    phone=phone,
+                    cart_items=cart_items,
+                    cart_subtotal=cart_subtotal,
+                    tax=tax,
+                    cart_total=cart_total
+                )
+                request.session["cart"] = {}
+                request.session.modified = True
+                messages.success(request, "Đặt hàng thành công, Vui lòng kiểm tra email!")
+                return redirect("checkout")
+        else:
+            register_form = RegisterUser(request.POST)
+            # Do ban đầu form đăng ký kh có số điện thoại nên lấy riêng 
+            phone = request.POST.get("phone","")
+            if not phone:
+                messages.error(request, "Vui lòng nhập số điện thoại!")
+            elif register_form.is_valid():
+                user = register_form.save(commit=False)
+                user.is_superuser = False
+                user.is_staff = False
+                user.set_password(register_form.cleaned_data["password"])
+                user.save()
+                login(request, user)
+                fullname = (f"{user.first_name}"f"{user.last_name}").strip()
+                if not fullname:
+                    fullname = user.username
+                History.objects.create(
+                    user = user,
+                    email = user.email,
+                    phone = phone, 
+                    name = fullname,
+                    price = cart_total
+                )
+                send_order_email(
+                    email=email,
+                    name=name,
+                    phone=phone,
+                    cart_items=cart_items,
+                    cart_subtotal=cart_subtotal,
+                    tax=tax,
+                    cart_total=cart_total
+                )
+                request.session["cart"]={}
+                request.session.modified = True
+                messages.success(request, "Đặt hàng thành công, Vui lòng kiểm tra email!")
+                return redirect("checkout")
     context = {
+        "cart_items": cart_items,
+        "cart_subtotal": cart_subtotal,
+        "tax": tax,
+        "cart_total": cart_total,
+        "register_form": register_form
+    }
+
+    return render(request, "product/checkout.html", context)
+def send_order_email(email,name,phone,cart_items,cart_subtotal,tax,cart_total):
+    subject = "Mail xác nhận đặt hàng!"
+    context = {
+        "name": name,
+        "phone": phone,
         "cart_items": cart_items,
         "cart_subtotal": cart_subtotal,
         "tax": tax,
         "cart_total": cart_total
     }
+    html_content = render_to_string("product/order_email.html", context)
+    text_content = f"""
+        Xin chào {name}
+        Cảm ơn vì đã đặt hàng!
+        Phone: {phone}
+        Total:  ${cart_total}"""
+    email_message = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=None,
+        to=[email]
+    )
+    email_message.attach_alternative(
+        html_content,
+        "text/html"
+    )
+    email_message.send()
 
-    return render(request, "product/checkout.html", context)
 
 
 # Create your views here.

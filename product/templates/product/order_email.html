@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body style="
+    margin:0;
+    padding:20px;
+    background:#f5f5f5;
+    font-family:Arial, sans-serif;">
+    <div style="
+        max-width:650px;
+        margin:auto;
+        background:white;
+        padding:30px;">
+        <h2 style="
+            color:#fe980f;
+            text-align:center;">
+            ORDER CONFIRMATION
+        </h2>
+        <p>
+            Xin chào <strong>{{ name }}</strong>,
+        </p>
+        <p>
+            Cảm ơn bạn đã đặt hàng!
+            Theo dõi thông tin đặt hàng của bạn
+        </p>
+        <p>
+            <strong>Phone:</strong>
+            {{ phone }}
+        </p>
+        <table width="100%" cellpadding="10" cellspacing="0" style="border-collapse:collapse;">
+            <thead>
+                <tr style="
+                    background:#fe980f;
+                    color:white;">
+                    <th align="left">
+                        Product
+                    </th>
+                    <th>
+                        Price
+                    </th>
+                    <th>
+                        Quantity
+                    </th>
+                    <th>
+                        Total
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td style="border-bottom:1px solid #ddd;">
+                        {{ item.product.name }}
+                    </td>
+                    <td align="center" style="border-bottom:1px solid #ddd;">
+                        ${{ item.product.price }}
+                    </td>
+                    <td align="center" style="border-bottom:1px solid #ddd;">
+                        {{ item.quantity }}
+                    </td>
+                    <td align="center" style="border-bottom:1px solid #ddd;">
+                        ${{ item.item_total }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="
+            margin-top:25px;
+            text-align:right;">
+            <p>
+                Cart Sub Total:
+                <strong>
+                    ${{ cart_subtotal }}
+                </strong>
+            </p>
+            <p>
+                Exo Tax:
+                <strong>
+                    ${{ tax }}
+                </strong>
+            </p>
+            <p>
+                Shipping Cost:
+                <strong>Free</strong>
+            </p>
+            <h3 style="color:#fe980f;">
+                Total:
+                ${{ cart_total }}
+            </h3>
+        </div>
+        <hr>
+        <p style="
+            text-align:center;
+            color:#777;">
+            Cảm ơn đã đặt hàng shop của Phan Hoàng!
+        </p>
+    </div>
+</body>
+
+</html>
