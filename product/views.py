@@ -4,7 +4,7 @@ from .forms import ProductForm
 import json
 import os
 from django.conf import settings
-from .models import Product, History
+from .models import Product, History, Category, Brand
 from django.contrib import messages
 from django.http import JsonResponse
 from user.form import RegisterUser
@@ -374,6 +374,14 @@ def search_product(request):
         "keyword": keyword
     }
     return render(request, "product/search.html", context)
+def search_advanced(request):
+    cagories = Category.objects.all()
+    brands = Brand.objects.all()
+    context = {
+        "cagories": cagories,
+        "brands": brands
+    }
+    return render(request, "product/search_advanced.html", context)
 
 
 

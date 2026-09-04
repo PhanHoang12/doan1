@@ -22,6 +22,9 @@ class Product(models.Model):
     detail = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    # bổ sung cho chức năng tìm kiếm nânng cao 
+    status_choices = [("available", "Available"),("unavailable","Unavailable")]
+    status = models.CharField(max_length=20, choices=status_choices, default="available")
     def __str__(self):
         return self.name
 class History(models.Model):
