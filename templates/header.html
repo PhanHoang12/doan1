@@ -150,7 +150,10 @@
                 </div>
                 <div class="col-sm-3">
                     <div class="search_box pull-right">
-                        <input type="text" placeholder="Search" />
+                        <!-- <input type="text" placeholder="Search" /> -->
+                        <form method="get" action="{% url 'search_product' %}">
+                            <input type="text" placeholder="Tìm kiếm sản phẩm" name="q" value="{{ request.GET.q }}">
+                        </form>
                     </div>
                 </div>
             </div>

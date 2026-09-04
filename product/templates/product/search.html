@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+Search Product
+{% endblock %}
+{% block content %}
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="features_items">
+                    <h2 class="title text-center">
+                        Search Results
+                    </h2>
+                    {% if keyword %}
+                    <p>
+                        Kết quả tìm kiếm cho:
+                        <strong>"{{ keyword }}"</strong>
+                    </p>
+                    {% endif %}
+                    {% for product in products %}
+                    <div class="col-sm-4">
+                        <div class="product-image-wrapper">
+                            <div class="single-products">
+                                <div class="productinfo text-center">
+                                    <!-- ẢNH SẢN PHẨM -->
+                                    {% if product.images %}
+                                    <img src="/media/{{ product.images.0 }}" alt="{{ product.name }}"
+                                        style="height:250px; object-fit:cover;">
+                                    {% else %}
+                                    <img src="{% static 'global/images/home/product1.jpg' %}" alt="No image"
+                                        style="height:250px; object-fit:cover;">
+
+                                    {% endif %}
+                                    <h2>
+                                        ${{ product.price }}
+                                    </h2>
+                                    <p>
+                                        {{ product.name }}
+                                    </p>
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-default add-to-cart">
+                                        <i class="fa fa-eye"></i>
+                                        View Detail
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-sm-12">
+                        <h4 class="text-center">
+                            Không tìm thấy sản phẩm phù hợp.
+                        </h4>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

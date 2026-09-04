@@ -348,6 +348,32 @@ def send_order_email(email,name,phone,cart_items,cart_subtotal,tax,cart_total):
         "text/html"
     )
     email_message.send()
+def search_product(request):
+    keyword = request.GET.get("q","").strip()
+    products = []
+    if keyword:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT id,name,price,images FROM product_product
+                WHERE name LIKE %s""",
+                [f"%{keyword}%"]
+            )
+            rows = cursor.fetchall()
+        for row in rows:
+            images = []
+            if row[3]:
+                images = json.loads(row[3])
+            products.append({
+                "id": row[0],
+                "name": row[1],
+                "price": row[2],
+                "images": images
+            })
+    context = {
+        "products": products,
+        "keyword": keyword
+    }
+    return render(request, "product/search.html", context)
 
 
 
