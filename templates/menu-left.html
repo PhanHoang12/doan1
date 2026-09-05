@@ -143,6 +143,23 @@
             var max_price = event.value[1];
             console.log("Min price", min_price)
             console.log("Max price", max_price)
+            $.ajax({
+                url: "{% url 'filter_price' %}",
+                type: "GET",
+                data: {
+                    min_price: min_price,
+                    max_price: max_price
+                },
+                success: function (response) {
+                    console.log("Ajax được gửi thành công")
+                    $("#product-list").html(response.html);
+                },
+                error: function (xhr, status, error) {
+
+                    console.log("AJAX error:", error);
+
+                }
+            })
         })
     })
 </script>

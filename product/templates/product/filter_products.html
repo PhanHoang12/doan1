@@ -1,11 +1,3 @@
-{% extends "base.html" %}
-{% load static %}
-
-{% block title %}
-Check out
-{% endblock %}
-
-{% block content %}
 {% for product in products %}
 
 <div class="col-sm-4">
@@ -17,8 +9,13 @@ Check out
             <div class="productinfo text-center">
 
                 {% if product.images %}
-                <img src="/media/{{ product.images.0 }}" alt="{{ product.name }}"
-                    style="width: 100%;height: 220px;object-fit: contain;">
+
+                <img src="/media/{{ product.images.0 }}" alt="{{ product.name }}" style="
+                        width: 100%;
+                        height: 220px;
+                        object-fit: contain;
+                    ">
+
                 {% endif %}
 
                 <h2>
@@ -41,7 +38,6 @@ Check out
 
 </div>
 
-
 {% empty %}
 
 <div class="col-sm-12">
@@ -53,4 +49,3 @@ Check out
 </div>
 
 {% endfor %}
-{% endblock %}

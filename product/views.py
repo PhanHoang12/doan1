@@ -433,7 +433,7 @@ def search_advanced(request):
             "brand_id": row[5],
             "status": row[6]
         })
-    paginator = Paginator(products,2)
+    paginator = Paginator(products,6)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number) 
     # print("SQL:", sql)
