@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
 Search Advanced
@@ -6,12 +7,216 @@ Search Advanced
 
 {% block content %}
 
-<div class="container">
+<section>
+    <div class="container">
 
-    <h2>Search Advanced</h2>
+        <div class="row">
 
-    <p>Trang search nâng cao đã hoạt động.</p>
+            <div class="col-sm-12">
 
-</div>
+                <h2 class="title text-center">
+                    Search Advanced
+                </h2>
+
+                <!-- SEARCH FORM -->
+                <form method="GET" action="{% url 'search_advanced' %}">
+
+                    <div class="row">
+
+                        <!-- NAME -->
+                        <div class="col-sm-3">
+
+                            <input type="text" name="name" class="form-control" placeholder="Name">
+
+                        </div>
+
+                        <!-- PRICE -->
+                        <div class="col-sm-2">
+
+                            <select name="price" class="form-control">
+
+                                <option value="">
+                                    Choose price
+                                </option>
+                                <option value="0-100">
+                                    0 - 100
+                                </option>
+                                <option value="100-500">
+                                    100 - 500
+                                </option>
+                                <option value="500-1000">
+                                    500 - 1000
+                                </option>
+                                <option value="1000-2000">
+                                    1000 - 2000
+                                </option>
+                                <option value="2000+">
+                                    2000+
+                                </option>
+
+                            </select>
+                        </div>
+                        <!-- CATEGORY -->
+                        <div class="col-sm-2">
+
+                            <select name="category" class="form-control">
+
+                                <option value="">
+                                    Category
+                                </option>
+
+                                {% for category in categories %}
+
+                                <option value="{{ category.id }}">
+                                    {{ category.name }}
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- BRAND -->
+                        <div class="col-sm-2">
+
+                            <select name="brand" class="form-control">
+
+                                <option value="">
+                                    Brand
+                                </option>
+
+                                {% for brand in brands %}
+
+                                <option value="{{ brand.id }}">
+                                    {{ brand.name }}
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+                        <div class="col-sm-2">
+
+                            <select name="status" class="form-control">
+
+                                <option value="">
+                                    Status
+                                </option>
+
+                                <option value="available">
+                                    Available
+                                </option>
+
+                                <option value="unavailable">
+                                    Unavailable
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <br>
+
+                    <button type="submit" class="btn btn-primary">
+                        Search
+                    </button>
+                </form>
+            </div>
+
+        </div>
+        <hr>
+        <!-- PRODUCT RESULT -->
+        <div class="row">
+            {% for product in page_obj %}
+            <div class="col-sm-4">
+                <div class="product-image-wrapper">
+                    <div class="single-products">
+                        <div class="productinfo text-center">
+                            <!-- IMAGE -->
+                            {% if product.images %}
+
+                            <img src="/media/{{ product.images.0 }}" alt="{{ product.name }}" style="
+                                    width: 200px;
+                                    height: 200px;
+                                    object-fit: cover;">
+                            {% endif %}
+                            <!-- PRICE -->
+                            <h2>
+                                {{ product.price }}
+                            </h2>
+
+                            <!-- NAME -->
+                            <p>
+                                {{ product.name }}
+                            </p>
+                            <!-- STATUS -->
+                            <p>
+                                Status:
+                                {{ product.status }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-sm-12">
+                <p class="text-center">
+                    No products found
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+        <!-- PAGINATION -->
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <ul class="pagination">
+                    <!-- PREVIOUS -->
+                    {% if page_obj.has_previous %}
+                    <li>
+                        <!-- <a href="?page={{ page_obj.previous_page_number }}"> -->
+                        <a
+                            href="?name={{ request.GET.name }}&price={{ request.GET.price }}&category={{ request.GET.category }}&brand={{ request.GET.brand }}&status={{ request.GET.status }}&page={{page_obj.previous_page_number}}">
+                            Previous
+                        </a>
+                    </li>
+                    {% endif %}
+                    <!-- PAGE NUMBER -->
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="active">
+                        <a href="#">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <!-- <a href="?page={{ num }}"> -->
+                        <a
+                            href="?name={{ request.GET.name }}&price={{ request.GET.price }}&category={{ request.GET.category }}&brand={{ request.GET.brand }}&status={{ request.GET.status }}&page={{num}}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    <!-- NEXT -->
+                    {% if page_obj.has_next %}
+                    <li>
+                        <!-- <a href="?page={{ page_obj.next_page_number }}"> -->
+                        <a
+                            href="?name={{ request.GET.name }}&price={{ request.GET.price }}&category={{ request.GET.category }}&brand={{ request.GET.brand }}&status={{ request.GET.status }}&page={{page_obj.next_page_number}}">
+                            Next
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
 
 {% endblock %}

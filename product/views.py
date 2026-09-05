@@ -12,6 +12,7 @@ from django.contrib.auth import login
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.db import connection
+from django.core.paginator import Paginator
 
 
 @login_required
@@ -375,10 +376,73 @@ def search_product(request):
     }
     return render(request, "product/search.html", context)
 def search_advanced(request):
-    cagories = Category.objects.all()
+    name = request.GET.get("name", "").strip()
+    price = request.GET.get("price", "")
+    category_id = request.GET.get("category", "")
+    brand_id = request.GET.get("brand", "")
+    status = request.GET.get("status", "")
+    categories = Category.objects.all()
     brands = Brand.objects.all()
+
+    sql = """ SELECT id, name, price, images, category_id, brand_id, status FROM product_product 
+    WHERE 1 = 1"""
+    p = []
+    if name: 
+        sql += """ AND LOWER(name) LIKE LOWER(%s)"""
+        p.append(f"%{name}%")
+    if price:
+        if price == "0-100":
+            sql += """ AND price BETWEEN %s AND %s"""
+            p.extend([0,100])
+        elif price == "100-500":
+            sql += """ AND price BETWEEN %s AND %s"""
+            p.extend([100,500])
+        elif price == "500-1000":
+            sql += """ AND price BETWEEN %s AND %s"""
+            p.extend([500,1000])
+        elif price =="1000-2000":
+            sql += """ AND price BETWEEN %s AND %s"""
+            p.extend([1000,2000])
+        elif price == "2000+":
+            sql += """ AND price >= %s"""
+            p.append(2000)
+    if category_id:
+        sql += """ AND category_id = %s"""
+        p.append(category_id)
+    if brand_id:
+        sql += """ AND brand_id = %s"""
+        p.append(brand_id)
+    if status:
+        sql += """ AND status = %s"""
+        p.append(status)
+    sql += """ ORDER BY id DESC"""
+    with connection.cursor() as cursor:
+        cursor.execute(sql, p)
+        rows = cursor.fetchall()
+    products = []
+    for row in rows: 
+        images = []
+        if row[3]:
+            images = json.loads(row[3])
+        products.append({
+            "id": row[0],
+            "name": row[1],
+            "price": row[2],
+            "images": images,
+            "category_id": row[4],
+            "brand_id": row[5],
+            "status": row[6]
+        })
+    paginator = Paginator(products,2)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number) 
+    # print("SQL:", sql)
+    # print("PARAMS:", p)
+    # print("ROWS:", rows)
     context = {
-        "cagories": cagories,
+        # "products": products,
+        "page_obj": page_obj,
+        "categories": categories,
         "brands": brands
     }
     return render(request, "product/search_advanced.html", context)
