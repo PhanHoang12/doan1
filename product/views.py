@@ -446,6 +446,32 @@ def search_advanced(request):
         "brands": brands
     }
     return render(request, "product/search_advanced.html", context)
+def filter_price(request):
+    min_price = request.GET.get("min_price",0)
+    max_price = request.GET.get("max_price",200000)
+    sql = """ SELECT id,name,price,images,status FROM product_product WHERE price BETWEEN %s AND %s 
+    ORDER BY id DESC """
+    with connection.cursor() as cursor:
+        cursor.execute(sql, [min_price,max_price])
+        rows = cursor.fetchall() 
+    products = []
+    for row in rows:
+        images = []
+        if row[3]:
+           images = json.loads(row[3])
+        products.append({
+            "id": row[0],
+            "name": row[1],
+            "price": row[2],
+            "images": images,
+            "status": row[4]
+        })
+    print("MIN_PRICE:", min_price)
+    print("MAX_PRICE:", max_price)
+    print("PRODUCTS:", rows)
+    return JsonResponse({
+        "products": products 
+    })
 
 
 
