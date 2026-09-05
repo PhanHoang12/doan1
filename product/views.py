@@ -469,8 +469,12 @@ def filter_price(request):
     print("MIN_PRICE:", min_price)
     print("MAX_PRICE:", max_price)
     print("PRODUCTS:", rows)
+    # return JsonResponse({
+    #     "products": products 
+    # })
+    html = render_to_string("product/filter_products.html",{"products":products})
     return JsonResponse({
-        "products": products 
+        "html":html
     })
 
 
