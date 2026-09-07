@@ -24,8 +24,8 @@ Search Product
                             <div class="single-products">
                                 <div class="productinfo text-center">
                                     <!-- ẢNH SẢN PHẨM -->
-                                    {% if product.images %}
-                                    <img src="/media/{{ product.images.0 }}" alt="{{ product.name }}"
+                                    {% if product.image_filenames %}
+                                    <img src="/media/{{ product.image_filenames.0 }}" alt="{{ product.name }}"
                                         style="height:250px; object-fit:cover;">
                                     {% else %}
                                     <img src="{% static 'global/images/home/product1.jpg' %}" alt="No image"
