@@ -8,9 +8,9 @@
 
             <div class="productinfo text-center">
 
-                {% if product.images %}
+                {% if product.image_filenames %}
 
-                <img src="/media/{{ product.images.0 }}" alt="{{ product.name }}" style="
+                <img src="/media/{{ product.image_filenames.0 }}" alt="{{ product.name }}" style="
                         width: 100%;
                         height: 220px;
                         object-fit: contain;

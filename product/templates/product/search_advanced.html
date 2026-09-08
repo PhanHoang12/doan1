@@ -142,9 +142,9 @@ Search Advanced
                     <div class="single-products">
                         <div class="productinfo text-center">
                             <!-- IMAGE -->
-                            {% if product.first_image %}
+                            {% if product.image_filenames %}
 
-                            <img src="/media/{{ product.first_image }}" alt="{{ product.name }}" style="
+                            <img src="/media/{{ product.image_filenames.0 }}" alt="{{ product.name }}" style="
                                     width: 200px;
                                     height: 200px;
                                     object-fit: cover;">
