@@ -8,8 +8,6 @@ class AccessRole:
             # if request.user.is_staff:
             allow_urls =[
                 "/admin/",
-                "/list-user/",
-                "/list-product/",
             ]
             for url in allow_urls:
                 if request.path.startswith(url):
