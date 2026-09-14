@@ -33,10 +33,4 @@ urlpatterns = [
     ),
     name="password_reset_complete"
     ),  
-
-    path("list-user/", views.list_user, name="list_user"),
-    path("list-user/edit/<int:id>/", views.edit_user, name="edit_user"),
-    path("list-user/delete/<int:id>/", views.delete_user, name="delete_user"),
-    
-
 ]

@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from country.models import CustomUser
 from django.core.validators import FileExtensionValidator
+from product.models import Product
 
 # Form dang ky user 
 class RegisterUser(forms.ModelForm):
@@ -77,4 +78,18 @@ class AdminUpdateUserForm(forms.ModelForm):
             'first_name',
             'last_name',
             'id_country'
+        ]
+class AdminProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = [
+            "name",
+            "price",
+            "category",
+            "brand",
+            "sale",
+            "sale_price",
+            "company_profile",
+            "detail",
+            "status",
         ]

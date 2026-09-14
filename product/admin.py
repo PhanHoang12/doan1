@@ -22,7 +22,21 @@ class ProductAdmin(admin.ModelAdmin):
         "brand",
         "sale",
         "user",
+        "status",
+        "created_at",
     )
+    search_fields = (
+        "name",
+        "user__username"
+    )
+    list_filter =(
+        "status",
+        "category",
+        "brand",
+    )
+    ordering = ("-id",)
+
+
 @admin.register(History)
 class HistoryAdmin(admin.ModelAdmin):
     list_display = (
