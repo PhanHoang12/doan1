@@ -19,7 +19,7 @@ Search Advanced
                 </h2>
 
                 <!-- SEARCH FORM -->
-                <form method="GET" action="{% url 'search_advanced' %}">
+                <form id="advanced-search-form" method="GET" action="{% url 'search_advanced' %}">
 
                     <div class="row">
 
@@ -222,5 +222,20 @@ Search Advanced
         </div>
     </div>
 </section>
+<script>
+    $(document).ready(function () {
+        $("#advanced-search-form").submit(function (e) {
+            e.preventDefault()
+            $.ajax({
+                url: $(this).attr("action"),
+                type: "GET",
+                data: $(this).serialize(),
+                success: function (response) {
+                    $("#product-list").html(response.html);
+                }
+            })
+        })
+    })
+</script>
 
 {% endblock %}

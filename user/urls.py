@@ -1,6 +1,7 @@
 from django.urls import path, reverse_lazy
 from . import views
 from django.contrib.auth import views as auth_views
+from .form import ResetPasswordForm
 
 urlpatterns = [
     path("", views.home, name='home'),
@@ -9,6 +10,7 @@ urlpatterns = [
     path("logout/", views.custom_logout, name='custom_logout'),
     # path("account", views.account, name="account"),
     path("account/update", views.account_update, name="account_update"),
+    
 
 
     # Nhập email
@@ -23,13 +25,18 @@ urlpatterns = [
         name="password_reset_done"),
     # link được gửi trong mail sẽ chạy vào đây 
     path("reset/<uidb64>/<token>/",auth_views.PasswordResetConfirmView.as_view(
-            template_name="user/password_reset_confirm.html"),
+            template_name="user/password_reset_confirm.html",
+            form_class=ResetPasswordForm),
         name="password_reset_confirm"),
         path("reset/done/",auth_views.PasswordResetCompleteView.as_view(
         template_name="user/password_reset_complete.html"
     ),
     name="password_reset_complete"
     ),  
+
+    path("list-user/", views.list_user, name="list_user"),
+    path("list-user/edit/<int:id>/", views.edit_user, name="edit_user"),
+    path("list-user/delete/<int:id>/", views.delete_user, name="delete_user"),
     
 
 ]

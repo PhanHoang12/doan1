@@ -48,3 +48,33 @@ class UpdateUserForm(forms.ModelForm):
             'last_name',
             'id_country'
         ]
+class ResetPasswordForm(forms.Form):
+    password = forms.CharField(widget=forms.PasswordInput, max_length=100)
+    confirm_password = forms.CharField(widget=forms.PasswordInput, max_length=100)
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+        if password and confirm_password and password != confirm_password:
+            return ValidationError("Mật khẩu và xác nhận mật khẩu không khớp")
+        return cleaned_data
+    def save(self,commit=False):
+        password = self.cleaned_data["password"]
+        self.user.set_password(password)
+        if commit:
+            self.user.save()
+        return self.user
+class AdminUpdateUserForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = [
+            'username',
+            'email',
+            'avatar',
+            'first_name',
+            'last_name',
+            'id_country'
+        ]

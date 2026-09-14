@@ -354,6 +354,7 @@ def search_product(request):
     products = Product.objects.none()
     if keyword:
         if keyword:
+            # name là tên field trong model còn icontains là kiểu tìm không phân biệt hoa thường, là lookup trong django
             products = Product.objects.filter(name__icontains = keyword).order_by("-id")   
             for product in products: 
                 if product.images:
@@ -379,8 +380,9 @@ def search_advanced(request):
     if name: 
         products = products.filter(name__icontains=name)
     if price:
-       min_price, max_price = price.split("-")
-       products = products.filter(price__range=(min_price,max_price))
+    #    min_price, max_price = price.split("-")
+    #range là lookup của Django để lọc giá trong khoảng min đến max, tương đương SQL BETWEEN
+       products = products.filter(price__range=price.split("-"))
     if category_id:
         products = products.filter(category_id=category_id)
     if brand_id:
@@ -388,7 +390,7 @@ def search_advanced(request):
     if status:
         products = products.filter(status=status)
 
-    products = Product.objects.order_by("-id")
+    products = products.order_by("-id")
     for product in products:
         if product.images:
             product.image_filenames = json.loads(product.images)
@@ -397,7 +399,12 @@ def search_advanced(request):
     paginator = Paginator(products,6)
 
     page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number) 
+    page_obj = paginator.get_page(page_number)
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        html = render_to_string("product/filter_products.html",{"products": page_obj})
+        return JsonResponse({
+            "html": html
+        })
 
     context = {
         # "products": products,
@@ -421,9 +428,6 @@ def filter_price(request):
             product.image_filenames = []
     print("MIN_PRICE:", min_price)
     print("MAX_PRICE:", max_price)
-    # return JsonResponse({
-    #     "products": products 
-    # })
     html = render_to_string("product/filter_products.html",{"products":products})
     return JsonResponse({
         "html":html
